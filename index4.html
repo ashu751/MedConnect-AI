@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedConnect AI — Smart Healthcare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a6bff;
+    --blue-light: #e8f0ff;
+    --blue-mid: #4d8dff;
+    --teal: #00b09b;
+    --teal-light: #e0f7f5;
+    --rose: #ff5b7f;
+    --rose-light: #fff0f3;
+    --amber: #f59e0b;
+    --amber-light: #fffbeb;
+    --green: #10b981;
+    --green-light: #ecfdf5;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+    --shadow-blue: 0 8px 30px rgba(26,107,255,0.18);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 6px;
+    --font-body: 'DM Sans', sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--gray-100); }
+  ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 10px; }
+
+  /* ─── AUTH ─── */
+  #authScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f4ff 0%, #fef9ff 50%, #f0fff8 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  #authScreen::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(26,107,255,0.07) 0%, transparent 70%);
+    top: -200px; right: -200px;
+    pointer-events: none;
+  }
+  #authScreen::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,176,155,0.07) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+    pointer-events: none;
+  }
+  .auth-box {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    padding: 48px 44px;
+    width: 440px;
+    max-width: 95vw;
+    position: relative;
+    z-index: 1;
+    animation: slideUp .5s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .auth-brand { text-align: center; margin-bottom: 36px; }
+  .auth-brand h1 { font-family: var(--font-serif); font-size: 2.2em; color: var(--blue); margin-bottom: 6px; }
+  .auth-brand p { color: var(--gray-500); font-size: 0.9em; }
+  .tab-row { display: flex; background: var(--gray-100); border-radius: 10px; padding: 4px; margin-bottom: 28px; gap: 4px; }
+  .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-weight: 600; font-size: 0.9em; cursor: pointer; font-family: var(--font-body); color: var(--gray-500); transition: all .2s; }
+  .tab-btn.active { background: var(--white); color: var(--blue); box-shadow: var(--shadow-sm); }
+  .form-section { display: none; }
+  .form-section.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 0.83em; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; letter-spacing: .3px; }
+  .field input, .field select {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-size: 0.95em; color: var(--gray-800);
+    background: var(--white);
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,107,255,.08); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .btn-main {
+    width: 100%; padding: 13px; background: var(--blue); color: var(--white);
+    border: none; border-radius: var(--radius-sm); font-family: var(--font-body);
+    font-weight: 700; font-size: 0.95em; cursor: pointer;
+    transition: all .2s; margin-top: 4px;
+  }
+  .btn-main:hover { background: var(--blue-mid); transform: translateY(-1px); box-shadow: var(--shadow-blue); }
+  .form-footer { text-align: center; margin-top: 14px; font-size: 0.85em; color: var(--gray-500); }
+  .form-footer a { color: var(--blue); cursor: pointer; font-weight: 600; text-decoration: none; }
+
+  /* ─── API KEY BANNER ─── */
+  .api-banner {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1.5px solid #fbbf24;
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+  .api-banner h4 { color: #92400e; font-size: 0.85em; font-weight: 700; margin-bottom: 6px; }
+  .api-banner p { color: #78350f; font-size: 0.82em; margin-bottom: 12px; }
+  .api-banner p a { color: var(--blue); }
+  .api-row { display: flex; gap: 8px; }
+  .api-row input { flex: 1; padding: 10px 12px; border: 1.5px solid #fbbf24; border-radius: 8px; font-family: var(--font-body); font-size: 0.85em; outline: none; }
+  .api-row input:focus { border-color: var(--blue); }
+  .btn-save-api { padding: 10px 18px; background: #f59e0b; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 0.83em; cursor: pointer; font-family: var(--font-body); transition: background .2s; white-space: nowrap; }
+  .btn-save-api:hover { background: #d97706; }
+  .api-ok { margin-top: 8px; font-size: 0.82em; color: #065f46; background: var(--green-light); padding: 6px 10px; border-radius: 6px; display: none; }
+  .api-ok.show { display: block; }
+
+  /* ─── APP SHELL ─── */
+  #appScreen { display: none; min-height: 100vh; flex-direction: column; }
+  #appScreen.active { display: flex; }
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: var(--shadow-sm);
+  }
+  .header-brand { font-family: var(--font-serif); font-size: 1.5em; color: var(--blue); }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: 30px; padding: 6px 14px 6px 6px;
+    cursor: pointer;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 0.9em;
+  }
+  .user-chip-name { font-size: 0.85em; font-weight: 600; color: var(--gray-700); }
+  .btn-logout { padding: 8px 16px; background: transparent; border: 1.5px solid var(--gray-200); border-radius: 8px; color: var(--gray-500); font-family: var(--font-body); font-size: 0.82em; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-logout:hover { border-color: var(--rose); color: var(--rose); }
+
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    display: flex; gap: 4px;
+    overflow-x: auto;
+  }
+  .nav-item {
+    padding: 14px 20px;
+    border: none; background: transparent;
+    font-family: var(--font-body); font-size: 0.88em; font-weight: 600;
+    color: var(--gray-500); cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: all .2s; white-space: nowrap;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .nav-item:hover { color: var(--blue); }
+  .nav-item.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  main { flex: 1; padding: 32px; max-width: 1100px; width: 100%; margin: 0 auto; }
+
+  /* ─── MODULE ─── */
+  .module { display: none; animation: fadeIn .3s ease; }
+  .module.active { display: block; }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-title { font-family: var(--font-serif); font-size: 1.7em; color: var(--gray-900); margin-bottom: 6px; }
+  .card-sub { color: var(--gray-500); font-size: 0.88em; margin-bottom: 22px; }
+  .section-label { font-size: 0.75em; font-weight: 700; color: var(--gray-400); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 14px; }
+
+  /* ─── SYMPTOM CHIPS ─── */
+  .symptom-wrap { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .symptom-chip {
+    padding: 10px 16px; border: 1.5px solid var(--gray-200);
+    border-radius: 30px; cursor: pointer; font-size: 0.85em;
+    font-weight: 600; color: var(--gray-600);
+    background: var(--white);
+    transition: all .2s; user-select: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .symptom-chip:hover { border-color: var(--blue); color: var(--blue); }
+  .symptom-chip.selected { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: var(--shadow-blue); }
+  .btn-sym-send { padding: 10px 22px; background: var(--blue); color: #fff; border: none; border-radius: 20px; font-family: var(--font-body); font-weight: 700; font-size: 0.85em; cursor: pointer; transition: all .2s; margin-bottom: 20px; display: none; }
+  .btn-sym-send:hover { background: var(--blue-mid); transform: translateY(-1px); }
+
+  /* ─── CHAT ─── */
+  .chat-wrap { border: 1.5px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; }
+  .chat-msgs {
+    height: 380px; overflow-y: auto; padding: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    background: var(--gray-50);
+  }
+  .msg { max-width: 78%; padding: 12px 16px; border-radius: 16px; font-size: 0.88em; line-height: 1.6; animation: msgIn .2s ease; white-space: pre-wrap; word-break: break-word; }
+  @keyframes msgIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .msg.bot { background: var(--white); border: 1px solid var(--gray-200); color: var(--gray-800); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: var(--shadow-sm); }
+  .msg.user { background: var(--blue); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .typing { display: none; align-self: flex-start; background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px; border-bottom-left-radius: 4px; padding: 12px 18px; gap: 5px; }
+  .typing.show { display: flex; }
+  .dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; animation: bounce 1.3s infinite ease-in-out; }
+  .dot:nth-child(2) { animation-delay: .16s; }
+  .dot:nth-child(3) { animation-delay: .32s; }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+  .chat-input-row { display: flex; border-top: 1.5px solid var(--gray-200); }
+  .chat-text { flex: 1; padding: 14px 18px; border: none; outline: none; font-family: var(--font-body); font-size: 0.9em; color: var(--gray-800); background: var(--white); }
+  .chat-text::placeholder { color: var(--gray-400); }
+  .btn-send { padding: 14px 24px; background: var(--blue); color: #fff; border: none; font-family: var(--font-body); font-weight: 700; font-size: 0.88em; cursor: pointer; transition: background .2s; }
+  .btn-send:hover { background: var(--blue-mid); }
+  .btn-send:disabled { background: var(--gray-300); cursor: not-allowed; }
+
+  /* ─── MOOD ─── */
+  .mood-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+  .mood-btn {
+    padding: 14px 20px; border: 1.5px solid var(--gray-200);
+    border-radius: 14px; cursor: pointer; background: var(--white);
+    font-family: var(--font-body); font-size: 0.85em; font-weight: 600;
+    color: var(--gray-600); transition: all .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mood-btn:hover { border-color: var(--blue); color: var(--blue); transform: translateY(-2px); }
+  .mood-btn.selected { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+  .mood-emoji-big { font-size: 1.5em; }
+
+  /* ─── WELLNESS TOOLS ─── */
+  .wellness-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 22px; }
+  .wellness-btn {
+    padding: 20px 14px; background: var(--gray-50); border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm); cursor: pointer; text-align: center;
+    font-family: var(--font-body); font-size: 0.83em; font-weight: 600; color: var(--gray-600);
+    transition: all .2s;
+  }
+  .wellness-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-light); transform: translateY(-2px); }
+  .wellness-icon { font-size: 1.8em; display: block; margin-bottom: 8px; }
+
+  /* ─── HOSPITAL MODULE ─── */
+  #hospital { background: linear-gradient(180deg, #f0f9ff 0%, var(--gray-50) 100%); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; border: 1px solid #dbeafe; }
+  .hosp-header { margin-bottom: 24px; }
+  .hosp-title { font-family: var(--font-serif); font-size: 1.7em; color: #1e3a5f; margin-bottom: 6px; }
+  .hosp-sub { color: #64748b; font-size: 0.88em; }
+  .hosp-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .hosp-filters select, .hosp-filters input {
+    padding: 11px 14px; border: 1.5px solid #bfdbfe;
+    border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.88em;
+    color: var(--gray-700); background: var(--white); outline: none;
+    transition: border-color .2s;
+  }
+  .hosp-filters select:focus, .hosp-filters input:focus { border-color: var(--blue); }
+  .hosp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .hosp-card {
+    background: var(--white); border: 1.5px solid #e0f2fe;
+    border-radius: var(--radius-sm); padding: 22px;
+    cursor: pointer; transition: all .2s;
+    box-shadow: 0 2px 8px rgba(14,165,233,0.06);
+  }
+  .hosp-card:hover { border-color: var(--blue); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,107,255,0.12); }
+  .hosp-name { font-size: 1em; font-weight: 700; color: #1e3a5f; margin-bottom: 4px; }
+  .hosp-spec { font-size: 0.8em; color: #0369a1; background: #e0f2fe; padding: 3px 9px; border-radius: 20px; display: inline-block; margin-bottom: 14px; font-weight: 600; }
+  .hosp-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .hosp-badge { padding: 4px 10px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px; font-size: 0.78em; color: var(--gray-600); font-weight: 600; }
+  .hosp-phone { font-size: 0.85em; color: var(--blue); font-weight: 700; }
+  .hosp-book { margin-top: 12px; padding: 9px 16px; background: var(--blue); color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-size: 0.8em; font-weight: 700; cursor: pointer; width: 100%; transition: background .2s; }
+  .hosp-book:hover { background: var(--blue-mid); }
+
+  /* ─── DASHBOARD ─── */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm); padding: 24px 20px;
+    text-align: center; position: relative; overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: var(--stat-color, var(--blue)); }
+  .stat-val { font-family: var(--font-serif); font-size: 2.4em; color: var(--stat-color, var(--blue)); }
+  .stat-label { font-size: 0.8em; color: var(--gray-500); font-weight: 600; margin-top: 4px; }
+  .risk-item { margin-bottom: 20px; }
+  .risk-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88em; font-weight: 600; }
+  .risk-head span:last-child { color: var(--gray-500); }
+  .progress-track { height: 8px; background: var(--gray-100); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 1s ease; }
+  .ai-rec {
+    padding: 16px 18px; border-radius: var(--radius-sm);
+    margin-bottom: 12px; border-left: 4px solid;
+    font-size: 0.88em; line-height: 1.6;
+  }
+  .ai-rec strong { display: block; margin-bottom: 4px; font-size: 0.95em; }
+  .rec-green { background: var(--green-light); border-color: var(--green); color: #065f46; }
+  .rec-amber { background: var(--amber-light); border-color: var(--amber); color: #92400e; }
+  .rec-blue { background: var(--blue-light); border-color: var(--blue); color: #1e3a8a; }
+  .rec-rose { background: var(--rose-light); border-color: var(--rose); color: #9f1239; }
+
+  /* ─── AI HEALTH ANALYSIS ─── */
+  .ai-health-box { background: linear-gradient(135deg, #f0f4ff, #f5f0ff); border: 1.5px solid #c7d2fe; border-radius: var(--radius-sm); padding: 20px; margin-bottom: 20px; }
+  .ai-health-box h4 { color: #3730a3; font-size: 0.92em; font-weight: 700; margin-bottom: 8px; }
+  .ai-health-result { font-size: 0.87em; color: var(--gray-700); line-height: 1.7; white-space: pre-wrap; margin-top: 12px; }
+  .btn-analyze { padding: 10px 22px; background: #4f46e5; color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-weight: 700; font-size: 0.85em; cursor: pointer; transition: background .2s; }
+  .btn-analyze:hover { background: #4338ca; }
+  .btn-analyze:disabled { background: var(--gray-300); cursor: not-allowed; }
+
+  /* ─── SOS ─── */
+  .sos-btn {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--rose); color: #fff; border: none;
+    font-weight: 800; font-size: 0.82em; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(255,91,127,0.4);
+    animation: sosPulse 2s infinite;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    z-index: 999; font-family: var(--font-body);
+  }
+  @keyframes sosPulse { 0%,100%{box-shadow:0 8px 24px rgba(255,91,127,0.4)} 50%{box-shadow:0 12px 36px rgba(255,91,127,0.7)} }
+
+  /* ─── MODAL ─── */
+  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; }
+  .modal-bg.open { display:flex; }
+  .modal { background:var(--white); border-radius:20px; padding:36px; max-width:480px; width:90%; box-shadow:var(--shadow-lg); animation:slideUp .3s ease; position:relative; }
+  .modal-close { position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%; border:none; background:var(--gray-100); color:var(--gray-500); font-size:1.1em; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .modal-close:hover { background:var(--rose-light); color:var(--rose); }
+  .modal h3 { font-family:var(--font-serif); font-size:1.5em; margin-bottom:16px; }
+  .modal-hosp { padding:16px; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:10px; margin-bottom:10px; }
+  .modal-hosp strong { display:block; color:var(--blue); margin-bottom:4px; }
+  .modal-hosp span { font-size:0.83em; color:var(--gray-500); }
+  .modal-hosp .ph { color:var(--green); font-weight:700; font-size:0.9em; margin-top:6px; display:block; }
+
+  /* ─── PROFILE MODAL ─── */
+  #profileModal .modal { max-width: 420px; }
+  .profile-avatar-big {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 1.8em;
+    margin: 0 auto 16px;
+  }
+  .profile-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--gray-100); font-size: 0.88em; }
+  .profile-row:last-child { border: none; }
+  .profile-row span:first-child { color: var(--gray-500); font-weight: 600; }
+  .profile-row span:last-child { color: var(--gray-800); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    header { padding: 0 16px; }
+    main { padding: 16px; }
+    nav { padding: 0 16px; }
+    .auth-box { padding: 32px 24px; }
+    .hosp-filters { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ AUTH SCREEN ════════════════ -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <h1>MedConnect AI</h1>
+      <p>Your Smart Healthcare Companion</p>
+    </div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('login', this)">Sign In</button>
+      <button class="tab-btn" onclick="switchTab('signup', this)">Create Account</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginSection" class="form-section active">
+      <div class="field"><label>Email Address</label><input type="email" id="li_email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="li_pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn-main" onclick="doLogin()">Sign In →</button>
+      <p class="form-footer">No account? <a onclick="switchTab('signup', document.querySelectorAll('.tab-btn')[1])">Sign Up</a></p>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupSection" class="form-section">
+      <div class="field-row">
+        <div class="field"><label>First Name</label><input type="text" id="su_fname" placeholder="John"></div>
+        <div class="field"><label>Last Name</label><input type="text" id="su_lname" placeholder="Doe"></div>
+      </div>
+      <div class="field"><label>Email Address</label><input type="email" id="su_email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="su_pass" placeholder="Create a strong password"></div>
+      <div class="field-row">
+        <div class="field"><label>Age</label><input type="number" id="su_age" placeholder="25" min="1" max="120"></div>
+        <div class="field"><label>Gender</label>
+          <select id="su_gender">
+            <option value="">Select</option>
+            <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Blood Group</label>
+        <select id="su_blood">
+          <option value="">Select</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Unknown</option>
+        </select>
+      </div>
+      <div class="field"><label>Any Known Allergies / Conditions (optional)</label><input type="text" id="su_cond" placeholder="e.g. Penicillin allergy, Diabetes"></div>
+      <button class="btn-main" onclick="doSignup()">Create Account →</button>
+      <p class="form-footer">Already have an account? <a onclick="switchTab('login', document.querySelectorAll('.tab-btn')[0])">Sign In</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ APP SCREEN ════════════════ -->
+<div id="appScreen">
+  <header>
+    <div class="header-brand">MedConnect AI</div>
+    <div class="header-right">
+      <div class="user-chip" onclick="openProfile()">
+        <div class="avatar" id="hdrAvatar">U</div>
+        <span class="user-chip-name" id="hdrName">User</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+
+  <nav>
+    <button class="nav-item active" onclick="showModule('medical', this)">🩺 AI Doctor</button>
+    <button class="nav-item" onclick="showModule('mental', this)">🧠 Mental Health</button>
+    <button class="nav-item" onclick="showModule('hospital', this)">🏥 Find Hospitals</button>
+    <button class="nav-item" onclick="showModule('dashboard', this)">📊 Dashboard</button>
+  </nav>
+
+  <main>
+
+    <!-- ── MODULE: AI DOCTOR ── -->
+    <div id="medical" class="module active">
+      <div class="card">
+        <div class="card-title">AI Doctor</div>
+        <div class="card-sub">Describe your symptoms and get AI-powered health insights. Always consult a real doctor for diagnosis.</div>
+
+        <!-- API KEY -->
+        <div class="api-banner" id="medApiBox">
+          <h4>⚙️ Claude API Key Required</h4>
+          <p>Enter your Claude API key to activate the AI chatbot. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
+          <div class="api-row">
+            <input type="password" id="medApiInput" placeholder="sk-ant-api03-...">
+            <button class="btn-save-api" onclick="saveApiKey()">Save Key</button>
+          </div>
+          <div class="api-ok" id="medApiOk">✓ API key saved! AI chatbot is now active.</div>
+        </div>
+
+        <div class="section-label">Quick Symptom Selector</div>
+        <div class="symptom-wrap" id="symptomWrap"></div>
+        <button class="btn-sym-send" id="btnSymSend" onclick="sendSymptoms()">Send Selected Symptoms →</button>
+
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="medChat">
+            <div class="msg bot">👋 Hello! I'm your AI Medical Assistant. Describe your symptoms below — I'll help you understand what might be going on. <strong>Always consult a real doctor for proper diagnosis and treatment.</strong></div>
+          </div>
+          <div class="typing" id="medTyping"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <div class="chat-input-row">
+            <input class="chat-text" id="medInput" placeholder="Describe your symptoms…" onkeydown="if(event.key==='Enter')sendChat('med')">
+            <button class="btn-send" id="medSendBtn" onclick="sendChat('med')">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODULE: MENTAL HEALTH ── -->
+    <div id="mental" class="module">
+      <div class="card">
+        <div class="card-title">Mental Health Companion</div>
+        <div class="card-sub">A safe, judgment-free space for emotional support and coping strategies. 💙</div>
+
+        <div class="section-label">How are you feeling today?</div>
+        <div class="mood-row" id="moodRow"></div>
+
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="mentChat">
+            <div class="msg bot">🌟 Hi there! I'm here to support you. This is your safe space — share whatever is on your mind. How are you doing today?</div>
+          </div>
+          <div class="typing" id="mentTyping"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <div class="chat-input-row">
+            <input class="chat-text" id="mentInput" placeholder="Share what's on your mind…" onkeydown="if(event.key==='Enter')sendChat('ment')">
+            <button class="btn-send" id="mentSendBtn" onclick="sendChat('ment')">Send</button>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:28px;">Wellness Tools</div>
+        <div class="wellness-row">
+          <button class="wellness-btn" onclick="showWellness('breathing')"><span class="wellness-icon">🫁</span>4-7-8 Breathing</button>
+          <button class="wellness-btn" onclick="showWellness('meditation')"><span class="wellness-icon">🧘</span>Meditation Guide</button>
+          <button class="wellness-btn" onclick="showWellness('journal')"><span class="wellness-icon">📝</span>Journal Prompts</button>
+          <button class="wellness-btn" onclick="showWellness('sleep')"><span class="wellness-icon">😴</span>Sleep Tips</button>
+          <button class="wellness-btn" onclick="showWellness('grounding')"><span class="wellness-icon">🌿</span>Grounding (5-4-3-2-1)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODULE: HOSPITAL FINDER ── -->
+    <div id="hospital" class="module">
+      <div class="hosp-header">
+        <div class="hosp-title">Find Hospitals & Doctors</div>
+        <div class="hosp-sub">Search by specialty, check availability, and book appointments near you.</div>
+      </div>
+      <div class="hosp-filters">
+        <select id="hospSpec" onchange="renderHospitals()">
+          <option value="all">All Specialties</option>
+          <option value="emergency">🚨 Emergency</option>
+          <option value="cardiology">💓 Cardiology</option>
+          <option value="neurology">🧠 Neurology</option>
+          <option value="orthopedics">🦴 Orthopedics</option>
+          <option value="pediatrics">👶 Pediatrics</option>
+          <option value="mental">🧘 Mental Health</option>
+          <option value="dermatology">🌿 Dermatology</option>
+        </select>
+        <input type="text" id="hospSearch" placeholder="🔍 Search hospital name…" oninput="renderHospitals()">
+      </div>
+      <div class="hosp-grid" id="hospGrid"></div>
+    </div>
+
+    <!-- ── MODULE: DASHBOARD ── -->
+    <div id="dashboard" class="module">
+      <div class="card">
+        <div class="card-title">My Health Dashboard</div>
+        <div class="card-sub">Your personal health overview and AI-powered recommendations.</div>
+
+        <div class="stats-row">
+          <div class="stat-card" style="--stat-color:var(--blue)"><div class="stat-val" id="dsHealthScore">85</div><div class="stat-label">Health Score</div></div>
+          <div class="stat-card" style="--stat-color:var(--teal)"><div class="stat-val" id="dsMentalScore">78</div><div class="stat-label">Mental Wellness</div></div>
+          <div class="stat-card" style="--stat-color:var(--amber)"><div class="stat-val" id="dsConsults">0</div><div class="stat-label">AI Consultations</div></div>
+          <div class="stat-card" style="--stat-color:var(--rose)"><div class="stat-val">45</div><div class="stat-label">Days Since Checkup</div></div>
+        </div>
+
+        <!-- AI Health Analysis -->
+        <div class="ai-health-box" id="aiHealthBox">
+          <h4>✨ AI Health Analysis</h4>
+          <p style="font-size:0.83em;color:#4338ca;margin-bottom:12px;">Get a personalized health summary and recommendations based on your profile using Claude AI.</p>
+          <button class="btn-analyze" id="btnAnalyze" onclick="runHealthAnalysis()">Generate My Health Report</button>
+          <div class="ai-health-result" id="aiHealthResult"></div>
+        </div>
+
+        <div class="section-label">Health Risk Assessment</div>
+        <div id="riskBars"></div>
+
+        <div class="section-label" style="margin-top:24px;">Recommendations</div>
+        <div id="aiRecs"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── SOS BUTTON ─── -->
+<button class="sos-btn" onclick="openSOS()"><span style="font-size:1.6em">🚨</span>SOS</button>
+
+<!-- ─── SOS MODAL ─── -->
+<div class="modal-bg" id="sosModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('sosModal')">×</button>
+    <h3 style="color:var(--rose)">🚨 Emergency Alert</h3>
+    <p style="color:var(--gray-600);font-size:0.88em;margin-bottom:20px;line-height:1.6;">Emergency services are being notified. Stay calm and follow instructions below.</p>
+    <div class="modal-hosp"><strong>City General Hospital</strong><span>24/7 Emergency Care • 0.8 km away</span><span class="ph">📞 108 — National Ambulance</span></div>
+    <div class="modal-hosp"><strong>Metro Trauma Center</strong><span>Trauma Specialist • 1.2 km away</span><span class="ph">📞 108 — National Ambulance</span></div>
+    <button class="btn-main" style="background:var(--rose);margin-top:8px" onclick="alert('🚨 Calling 108 — Ambulance dispatched!\nETA: ~8 minutes\n📍 Location shared.\n\nStay calm. Help is coming!')">📞 Call Ambulance Now</button>
+    <p style="font-size:0.78em;color:var(--gray-400);text-align:center;margin-top:10px;">You can also call 112 (Police) or 102 (Ambulance)</p>
+  </div>
+</div>
+
+<!-- ─── PROFILE MODAL ─── -->
+<div class="modal-bg" id="profileModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('profileModal')">×</button>
+    <div class="profile-avatar-big" id="pmAvatar">U</div>
+    <h3 style="text-align:center;margin-bottom:20px" id="pmName">User</h3>
+    <div id="pmRows"></div>
+  </div>
+</div>
+
+<!-- ─── WELLNESS MODAL ─── -->
+<div class="modal-bg" id="wellnessModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('wellnessModal')">×</button>
+    <h3 id="wellnessTitle"></h3>
+    <div id="wellnessContent" style="font-size:0.88em;color:var(--gray-700);line-height:1.8;margin-top:12px;white-space:pre-wrap;"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+let USERS = JSON.parse(localStorage.getItem('mc_users') || '{}');
+let SESSION = null;
+let API_KEY = localStorage.getItem('mc_api_key') || '';
+let medHistory = [];   // [{role,content}]
+let mentHistory = [];
+let selectedSymptoms = [];
+let selectedMood = null;
+let consultCount = 0;
+let mentalScore = 78;
+
+const HOSPITALS = [
+  {name:"City General Hospital", spec:"emergency", dist:"0.8 km", rating:4.5, beds:45, phone:"108", wait:"~10 min"},
+  {name:"Apollo Multispecialty", spec:"cardiology", dist:"1.2 km", rating:4.8, beds:12, phone:"011-2612-3456", wait:"By appt"},
+  {name:"Max Super Specialty", spec:"neurology", dist:"2.1 km", rating:4.7, beds:8, phone:"011-2698-7654", wait:"By appt"},
+  {name:"Fortis Healthcare", spec:"orthopedics", dist:"1.5 km", rating:4.6, beds:20, phone:"011-4277-6222", wait:"~30 min"},
+  {name:"Rainbow Children's Hospital", spec:"pediatrics", dist:"2.8 km", rating:4.9, beds:15, phone:"011-4967-6000", wait:"By appt"},
+  {name:"AIIMS Delhi", spec:"emergency", dist:"3.2 km", rating:4.8, beds:50, phone:"011-2658-8500", wait:"~25 min"},
+  {name:"Manipal Hospital", spec:"cardiology", dist:"1.8 km", rating:4.7, beds:18, phone:"011-4967-4967", wait:"By appt"},
+  {name:"Mindcare Wellness Center", spec:"mental", dist:"1.1 km", rating:4.5, beds:10, phone:"011-2345-6789", wait:"By appt"},
+  {name:"SkinGlow Dermatology", spec:"dermatology", dist:"0.9 km", rating:4.4, beds:5, phone:"011-9876-5432", wait:"By appt"},
+  {name:"NeuroLife Brain & Spine", spec:"neurology", dist:"2.5 km", rating:4.6, beds:12, phone:"011-5678-9012", wait:"By appt"},
+];
+
+const SYMPTOMS_LIST = [
+  {icon:"🌡️", label:"Fever"}, {icon:"🤕", label:"Headache"}, {icon:"😷", label:"Cough"},
+  {icon:"😴", label:"Fatigue"}, {icon:"🤢", label:"Nausea"}, {icon:"💪", label:"Body Pain"},
+  {icon:"😮‍💨", label:"Breathlessness"}, {icon:"🤧", label:"Runny Nose"},
+  {icon:"🤸", label:"Dizziness"}, {icon:"🫀", label:"Chest Pain"},
+];
+
+const MOODS = [
+  {emoji:"😊", label:"Great", score:95}, {emoji:"😌", label:"Good", score:85},
+  {emoji:"😐", label:"Okay", score:70}, {emoji:"😔", label:"Sad", score:50},
+  {emoji:"😰", label:"Anxious", score:55}, {emoji:"😡", label:"Angry", score:60},
+];
+
+const SYSTEM_PROMPTS = {
+  med: `You are MedAI, a compassionate and knowledgeable AI medical assistant. Help users understand their symptoms clearly and concisely. Always end with a reminder to consult a licensed doctor. Use bullet points and emojis for readability. Never definitively diagnose. Keep responses under 280 words.`,
+  ment: `You are MindAI, a warm and empathetic mental health companion. Provide emotional support, validate feelings, and suggest practical evidence-based coping strategies. If the user expresses crisis or suicidal thoughts, urgently and gently direct them to call iCall (9152987821) or NIMHANS (080-46110007) or go to the nearest ER. Be human, warm, and non-judgmental. Keep responses under 250 words.`
+};
+
+const WELLNESS_DATA = {
+  breathing: {
+    title: "🫁 4-7-8 Breathing Exercise",
+    content: `A powerful technique to calm your nervous system in minutes.\n\nHow to do it:\n1. Sit comfortably with your back straight\n2. Exhale completely through your mouth\n3. Close your mouth and inhale through your nose for 4 seconds\n4. Hold your breath for 7 seconds\n5. Exhale completely through your mouth for 8 seconds\n6. Repeat this cycle 4 times\n\n💡 Why it works: This activates your parasympathetic nervous system, reducing cortisol and slowing heart rate almost instantly.\n\n✨ Best for: Anxiety, panic, trouble sleeping, stress before a big event.`
+  },
+  meditation: {
+    title: "🧘 5-Minute Mindfulness Meditation",
+    content: `You don't need an app or experience to meditate.\n\nGuided steps:\n1. Find a quiet place. Sit or lie comfortably.\n2. Close your eyes and take 3 slow deep breaths.\n3. Focus on the physical sensation of breathing — the rise and fall of your chest.\n4. When your mind wanders (it will), gently bring your attention back to your breath. Don't judge yourself.\n5. After 5 minutes, slowly open your eyes.\n\n💡 Tip: Increase by 1 minute each week. Consistency beats duration.\n\n📱 Recommended apps: Headspace, Calm, Insight Timer (free tier available)`
+  },
+  journal: {
+    title: "📝 Daily Journal Prompts",
+    content: `Journaling for just 5–10 minutes can significantly reduce stress and improve clarity.\n\nToday's prompts:\n• What am I feeling right now, and where do I feel it in my body?\n• What am I genuinely grateful for today (big or small)?\n• What challenged me today, and what did I learn from it?\n• What do I need more of tomorrow?\n• What would I tell a friend going through what I'm going through?\n\n💡 Rules: No rules. Write freely. Don't edit yourself. It's for your eyes only.\n\n✨ Try the "3 Good Things" method — every night, write 3 things that went well. Science-backed mood booster.`
+  },
+  sleep: {
+    title: "😴 Better Sleep Tips",
+    content: `Sleep is the foundation of physical and mental health. Here's how to improve it:\n\nDo:\n✅ Keep a consistent sleep/wake schedule (even weekends)\n✅ Keep your bedroom cool (16–19°C / 61–66°F)\n✅ Make the room dark — use blackout curtains or a sleep mask\n✅ Do a relaxing wind-down routine 30–60 min before bed\n✅ Exercise during the day (not within 3 hours of sleep)\n\nAvoid:\n❌ Screens 1 hour before bed (blue light disrupts melatonin)\n❌ Caffeine after 2 PM\n❌ Heavy meals within 2 hours of bedtime\n❌ Alcohol as a sleep aid — it reduces sleep quality\n\n🎯 Target: 7–9 hours for adults, 8–10 for teens.`
+  },
+  grounding: {
+    title: "🌿 5-4-3-2-1 Grounding Technique",
+    content: `This technique pulls you out of anxiety or overwhelm by anchoring you to the present moment.\n\nHow to use it:\nLook around you and identify:\n\n👀 5 things you can SEE\n   (look slowly, really notice details)\n\n🤲 4 things you can TOUCH\n   (notice texture, temperature, weight)\n\n👂 3 things you can HEAR\n   (ambient sounds you normally ignore)\n\n👃 2 things you can SMELL\n   (or 2 you like the smell of)\n\n👅 1 thing you can TASTE\n   (or your favourite taste)\n\n💡 Take your time with each step. This technique works because it engages multiple senses, overriding the brain's threat response.\n\n✨ Best for: Panic attacks, dissociation, sudden anxiety spikes.`
+  }
+};
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+window.onload = function () {
+  buildSymptoms();
+  buildMoods();
+  renderHospitals();
+  renderRiskBars();
+  renderRecs();
+  if (API_KEY) hideApiBox();
+  // auto-login
+  const last = localStorage.getItem('mc_session');
+  if (last && USERS[last]) { SESSION = USERS[last]; enterApp(); }
+};
+
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tab + 'Section').classList.add('active');
+}
+
+function doLogin() {
+  const email = document.getElementById('li_email').value.trim();
+  const pass = document.getElementById('li_pass').value;
+  if (!email || !pass) return alert('Please fill in all fields.');
+  const u = USERS[email];
+  if (!u || u.password !== pass) return alert('❌ Incorrect email or password.');
+  SESSION = u;
+  localStorage.setItem('mc_session', email);
+  enterApp();
+}
+
+function doSignup() {
+  const fname = document.getElementById('su_fname').value.trim();
+  const lname = document.getElementById('su_lname').value.trim();
+  const email = document.getElementById('su_email').value.trim();
+  const pass = document.getElementById('su_pass').value;
+  const age = document.getElementById('su_age').value;
+  const gender = document.getElementById('su_gender').value;
+  const blood = document.getElementById('su_blood').value;
+  const cond = document.getElementById('su_cond').value.trim();
+
+  if (!fname || !lname || !email || !pass || !age || !gender) return alert('Please fill in all required fields.');
+  if (USERS[email]) return alert('❌ This email is already registered. Please sign in.');
+  if (pass.length < 6) return alert('Password must be at least 6 characters.');
+
+  USERS[email] = { fname, lname, email, password: pass, age, gender, blood: blood || 'Unknown', conditions: cond || 'None', joined: new Date().toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'}) };
+  localStorage.setItem('mc_users', JSON.stringify(USERS));
+  alert('✅ Account created! Signing you in…');
+  SESSION = USERS[email];
+  localStorage.setItem('mc_session', email);
+  enterApp();
+}
+
+function enterApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appScreen').classList.add('active');
+  const initials = SESSION.fname.charAt(0) + SESSION.lname.charAt(0);
+  document.getElementById('hdrAvatar').textContent = initials.toUpperCase();
+  document.getElementById('hdrName').textContent = SESSION.fname + ' ' + SESSION.lname;
+}
+
+function doLogout() {
+  if (!confirm('Log out?')) return;
+  SESSION = null;
+  localStorage.removeItem('mc_session');
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('authScreen').style.display = 'flex';
+  // reset chat
+  medHistory = []; mentHistory = [];
+  selectedSymptoms = []; selectedMood = null;
+  consultCount = 0;
+  document.getElementById('medChat').innerHTML = '<div class="msg bot">👋 Hello! I\'m your AI Medical Assistant. Describe your symptoms below — I\'ll help you understand what might be going on. <strong>Always consult a real doctor for proper diagnosis and treatment.</strong></div>';
+  document.getElementById('mentChat').innerHTML = '<div class="msg bot">🌟 Hi there! I\'m here to support you. This is your safe space — share whatever is on your mind. How are you doing today?</div>';
+  document.querySelectorAll('.symptom-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('btnSymSend').style.display = 'none';
+}
+
+/* ══════════════════════════════════════
+   API KEY
+══════════════════════════════════════ */
+function saveApiKey() {
+  const k = document.getElementById('medApiInput').value.trim();
+  if (!k.startsWith('sk-ant-')) return alert('❌ Invalid API key format — should start with sk-ant-');
+  API_KEY = k;
+  localStorage.setItem('mc_api_key', k);
+  document.getElementById('medApiOk').classList.add('show');
+  setTimeout(hideApiBox, 1800);
+}
+function hideApiBox() {
+  document.getElementById('medApiBox').style.display = 'none';
+}
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function showModule(id, btn) {
+  document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════
+   SYMPTOMS BUILD
+══════════════════════════════════════ */
+function buildSymptoms() {
+  const wrap = document.getElementById('symptomWrap');
+  SYMPTOMS_LIST.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'symptom-chip';
+    chip.innerHTML = s.icon + ' ' + s.label;
+    chip.onclick = () => toggleSymptom(chip, s.label);
+    wrap.appendChild(chip);
+  });
+}
+function toggleSymptom(el, label) {
+  el.classList.toggle('selected');
+  if (selectedSymptoms.includes(label)) selectedSymptoms = selectedSymptoms.filter(s => s !== label);
+  else selectedSymptoms.push(label);
+  document.getElementById('btnSymSend').style.display = selectedSymptoms.length ? 'inline-block' : 'none';
+}
+function sendSymptoms() {
+  if (!selectedSymptoms.length) return;
+  const txt = "I'm currently experiencing: " + selectedSymptoms.join(', ');
+  document.getElementById('medInput').value = txt;
+  sendChat('med');
+  selectedSymptoms = [];
+  document.querySelectorAll('.symptom-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btnSymSend').style.display = 'none';
+}
+
+/* ══════════════════════════════════════
+   MOODS BUILD
+══════════════════════════════════════ */
+function buildMoods() {
+  const row = document.getElementById('moodRow');
+  MOODS.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'mood-btn';
+    btn.innerHTML = `<span class="mood-emoji-big">${m.emoji}</span>${m.label}`;
+    btn.onclick = () => selectMood(btn, m);
+    row.appendChild(btn);
+  });
+}
+function selectMood(btn, mood) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMood = mood;
+  mentalScore = Math.round((mentalScore + mood.score) / 2);
+  document.getElementById('dsMentalScore').textContent = mentalScore;
+  const inp = document.getElementById('mentInput');
+  inp.value = `I'm feeling ${mood.label.toLowerCase()} today ${mood.emoji}`;
+  sendChat('ment');
+  inp.value = '';
+}
+
+/* ══════════════════════════════════════
+   CHAT
+══════════════════════════════════════ */
+async function sendChat(type) {
+  const inputId = type + 'Input';
+  const chatId = type + 'Chat';
+  const typingId = type + 'Typing';
+  const btnId = type + 'SendBtn';
+
+  const input = document.getElementById(inputId);
+  const text = input.value.trim();
+  if (!text) return;
+  if (!API_KEY) { alert('⚠️ Please save your Claude API key first (in the AI Doctor tab).'); return; }
+
+  addMsg(chatId, text, 'user');
+  input.value = '';
+
+  const history = type === 'med' ? medHistory : mentHistory;
+  history.push({ role: 'user', content: text });
+
+  document.getElementById(typingId).classList.add('show');
+  document.getElementById(btnId).disabled = true;
+
+  try {
+    const reply = await callClaude(SYSTEM_PROMPTS[type], history);
+    history.push({ role: 'assistant', content: reply });
+    document.getElementById(typingId).classList.remove('show');
+    addMsg(chatId, reply, 'bot');
+    consultCount++;
+    document.getElementById('dsConsults').textContent = consultCount;
+  } catch (e) {
+    document.getElementById(typingId).classList.remove('show');
+    addMsg(chatId, '⚠️ Error: ' + e.message + '\n\nPlease check your API key and try again.', 'bot');
+  }
+  document.getElementById(btnId).disabled = false;
+}
+
+function addMsg(chatId, text, role) {
+  const chat = document.getElementById(chatId);
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function callClaude(systemPrompt, messages) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: messages
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || res.statusText);
+  }
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+/* ══════════════════════════════════════
+   HOSPITALS
+══════════════════════════════════════ */
+function renderHospitals() {
+  const spec = document.getElementById('hospSpec').value;
+  const search = document.getElementById('hospSearch').value.toLowerCase();
+  const grid = document.getElementById('hospGrid');
+  const filtered = HOSPITALS.filter(h =>
+    (spec === 'all' || h.spec === spec) &&
+    h.name.toLowerCase().includes(search)
+  );
+  if (!filtered.length) { grid.innerHTML = '<p style="color:var(--gray-400);padding:30px;text-align:center;">No hospitals found for your filters.</p>'; return; }
+  grid.innerHTML = filtered.map(h => `
+    <div class="hosp-card">
+      <div class="hosp-name">${h.name}</div>
+      <div class="hosp-spec">${h.spec.charAt(0).toUpperCase()+h.spec.slice(1)}</div>
+      <div class="hosp-meta">
+        <span class="hosp-badge">⭐ ${h.rating}</span>
+        <span class="hosp-badge">🛏️ ${h.beds} beds</span>
+        <span class="hosp-badge">📍 ${h.dist}</span>
+        <span class="hosp-badge">⏱ ${h.wait}</span>
+      </div>
+      <div class="hosp-phone">📞 ${h.phone}</div>
+      <button class="hosp-book" onclick="bookAppt('${h.name}')">Book Appointment →</button>
+    </div>
+  `).join('');
+}
+function bookAppt(name) {
+  alert(`📅 Appointment Booked!\n\nHospital: ${name}\nDate: Tomorrow, 10:00 AM\n\nConfirmation sent to ${SESSION?.email || 'your email'}\n\n(This is a demo — no real booking was made)`);
+}
+
+/* ══════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════ */
+function renderRiskBars() {
+  const bars = [
+    {label:'Cardiovascular Health', pct:12, color:'#10b981', note:'Low Risk'},
+    {label:'Stress Level', pct:45, color:'#f59e0b', note:'Moderate'},
+    {label:'Sleep Quality', pct:78, color:'#10b981', note:'Good'},
+    {label:'Physical Activity', pct:85, color:'#1a6bff', note:'Active'},
+  ];
+  document.getElementById('riskBars').innerHTML = bars.map(b => `
+    <div class="risk-item">
+      <div class="risk-head"><span>${b.label}</span><span style="color:${b.color}">${b.note} — ${b.pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${b.pct}%;background:${b.color}"></div></div>
+    </div>
+  `).join('');
+}
+function renderRecs() {
+  const recs = [
+    {cls:'rec-green', text:'<strong>✅ Physical Activity — Keep It Up!</strong>Your activity levels are excellent. Maintain your current routine for optimal long-term health.'},
+    {cls:'rec-amber', text:'<strong>⚠️ Stress — Action Needed</strong>Moderate stress detected. Try 10–15 min of daily meditation and short breaks during work. Use the Mental Health tab for tools.'},
+    {cls:'rec-blue', text:'<strong>📅 Schedule Your Checkup</strong>It\'s been 45 days since your last checkup. Book a preventive health screening via the Find Hospitals tab.'},
+    {cls:'rec-rose', text:'<strong>💊 Medication Reminder</strong>If you\'re on regular medication, set daily reminders to avoid missed doses.'},
+  ];
+  document.getElementById('aiRecs').innerHTML = recs.map(r => `<div class="ai-rec ${r.cls}">${r.text}</div>`).join('');
+}
+
+async function runHealthAnalysis() {
+  if (!API_KEY) { alert('⚠️ Please save your Claude API key first (in the AI Doctor tab).'); return; }
+  const btn = document.getElementById('btnAnalyze');
+  const resultDiv = document.getElementById('aiHealthResult');
+  btn.disabled = true;
+  btn.textContent = 'Analysing…';
+  resultDiv.textContent = '';
+  const u = SESSION;
+  const prompt = `You are a health AI. Generate a personalized, concise health summary and 3 specific actionable recommendations for this user. Be warm, clear, and practical. Use bullet points.
+
+User Profile:
+- Name: ${u.fname} ${u.lname}
+- Age: ${u.age}, Gender: ${u.gender}
+- Blood Group: ${u.blood}
+- Known Conditions/Allergies: ${u.conditions}
+- Stress Level: Moderate (45%)
+- Sleep Quality: Good (78%)
+- Physical Activity: Active (85%)
+- Days since last checkup: 45
+- AI Consultations done: ${consultCount}
+
+Provide: 1) A brief health summary paragraph 2) 3 personalised action items with specific steps 3) A motivational closing line. Keep it under 300 words.`;
+
+  try {
+    const reply = await callClaude('You are a helpful health AI assistant.', [{ role: 'user', content: prompt }]);
+    resultDiv.textContent = reply;
+  } catch (e) {
+    resultDiv.textContent = '⚠️ Could not generate analysis: ' + e.message;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Regenerate Report';
+}
+
+/* ══════════════════════════════════════
+   PROFILE MODAL
+══════════════════════════════════════ */
+function openProfile() {
+  const u = SESSION;
+  document.getElementById('pmAvatar').textContent = (u.fname.charAt(0) + u.lname.charAt(0)).toUpperCase();
+  document.getElementById('pmName').textContent = u.fname + ' ' + u.lname;
+  const fields = [
+    ['Email', u.email], ['Age', u.age + ' years'], ['Gender', u.gender],
+    ['Blood Group', u.blood], ['Known Conditions', u.conditions], ['Member Since', u.joined]
+  ];
+  document.getElementById('pmRows').innerHTML = fields.map(([k, v]) =>
+    `<div class="profile-row"><span>${k}</span><span>${v || '—'}</span></div>`
+  ).join('');
+  document.getElementById('profileModal').classList.add('open');
+}
+
+/* ══════════════════════════════════════
+   SOS / MODALS / WELLNESS
+══════════════════════════════════════ */
+function openSOS() { document.getElementById('sosModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-bg')) e.target.classList.remove('open');
+});
+
+function showWellness(key) {
+  const d = WELLNESS_DATA[key];
+  document.getElementById('wellnessTitle').textContent = d.title;
+  document.getElementById('wellnessContent').textContent = d.content;
+  document.getElementById('wellnessModal').classList.add('open');
+}
+</script>
+</body>
+</html>
